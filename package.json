@@ -1,0 +1,16 @@
+{
+    "name": "location",
+    "version": "1.0.0",
+    "root": "matcha",
+    "spmConfig": {
+        "build": {
+            "to": "./dist/{{version}}"
+        }
+    },
+    "dependencies": {
+        "jquery": "matcha/jquery/1.8.2/jquery"
+    },
+    "output": {
+        "location.js": "."
+    }
+}
