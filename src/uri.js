@@ -1,10 +1,3 @@
-/**
- *
- * Location Models
- *
- * @author kidney<kidneyleung@gmail.com>
- *
- */
 define(function(require, exports, module) {
 var $ = require('jquery'),
 
