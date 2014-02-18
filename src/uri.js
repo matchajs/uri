@@ -1,33 +1,16 @@
+/**
+ * thanks:
+ *  - http://en.wikipedia.org/wiki/URI_scheme
+ *  - http://en.wikipedia.org/wiki/Query_string
+ *  - http://mootools.net/docs/more/Types/URI
+ */
 define(function(require, exports, module) {
-var $ = require('jquery'),
-
-// Helper
-win = window, TRUE = true, FALSE = false, UNDEFINED = undefined;
-
-    function urlEncode(s) {
-        return encodeURIComponent(String(s));
-    }
-
-    function urlDecode(s) {
-        return decodeURIComponent(s.replace(/\+/g, ' '));
-    }
-
-    function isValidParamValue(val) {
-        var t = typeof val;
-        // If the type of val is null, undefined, number, string, boolean, return TRUE.
-        return val == null || (t !== 'object' && t !== 'function');
-    }
-
-    function endsWith(str, suffix) {
-        var ind = str.length - suffix.length;
-        return ind >= 0 && str.indexOf(suffix, ind) == ind;
-    }
-
+    var $ = require('jquery');
 
     module.exports = {
         parseURL: function(url) {
             var pattern = /^(?:([A-Za-z]+):(\/{0,3}))?([0-9.\-A-Za-z]+\.[0-9A-Za-z]+)?(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/,
-                cfgArr = ['url', 'scheme', 'slash', 'host', 'port', 'path', 'query', 'hash'],
+                cfgArr = ['url', 'scheme', 'slash', 'host', 'port', 'path', 'query', 'fragment'],
                 execRow = pattern.exec(url), row = {};
 
             for (var i = 0, len = cfgArr.length; i < len; ++i) {
@@ -74,18 +57,18 @@ win = window, TRUE = true, FALSE = false, UNDEFINED = undefined;
                 // val is valid non-array value
                 if (isValidParamValue(val)) {
                     buf.push(key);
-                    if (val !== UNDEFINED) {
+                    if (val !== undefined) {
                         buf.push(eq, urlEncode(val + ''));
                     }
                     buf.push(sep);
                 }
                 // val is not empty array
-                else if ($.isArray(val) && val.length) {
+                else if (isArray(val) && val.length) {
                     for (i = 0, len = val.length; i < len; ++i) {
                         v = val[i];
                         if (isValidParamValue(v)) {
                             buf.push(key, (serializeArray ? urlEncode('[]') : ''));
-                            if (v !== UNDEFINED) {
+                            if (v !== undefined) {
                                 buf.push(eq, urlEncode(v + ''));
                             }
                             buf.push(sep);
@@ -107,7 +90,7 @@ win = window, TRUE = true, FALSE = false, UNDEFINED = undefined;
          *      'section=blog&id=45'        // -> {section: 'blog', id: '45'}
          *      'section=blog&tag=js&tag=doc' // -> {section: 'blog', tag: ['js', 'doc']}
          *      'tag=ruby%20on%20rails'        // -> {tag: 'ruby on rails'}
-         *      'id=45&raw'        // -> {id: '45', raw: ''}
+         *      'id=45&raw'        // -> {id: '45', raw: null}
          * @param {String} str param string
          * @param {Object} config
          *                  [sep='&'] separator between each pair of data
@@ -115,7 +98,7 @@ win = window, TRUE = true, FALSE = false, UNDEFINED = undefined;
          * @return {Object} json data
          */
         unparam: function(str, options) {
-            if (typeof str != 'string' || !(str = $.trim(str))) {
+            if (typeof str != 'string' || !(str = trim(str))) {
                 return {};
             }
 
@@ -131,7 +114,7 @@ win = window, TRUE = true, FALSE = false, UNDEFINED = undefined;
                 eqIndex = item.indexOf(eq);
                 if (eqIndex == -1) {
                     key = urlDecode(item);
-                    val = UNDEFINED;
+                    val = null;
                 } else {
                     // remember to decode key!
                     key = urlDecode(item.substring(0, eqIndex));
@@ -146,7 +129,7 @@ win = window, TRUE = true, FALSE = false, UNDEFINED = undefined;
                     }
                 }
                 if (key in ret) {
-                    if ($.isArray(ret[key])) {
+                    if (isArray(ret[key])) {
                         ret[key].push(val);
                     } else {
                         ret[key] = [ret[key], val];
@@ -159,4 +142,32 @@ win = window, TRUE = true, FALSE = false, UNDEFINED = undefined;
             return ret;
         }
     };
+
+    // helps
+    function isArray(o) {
+        return $.isArray(o);
+    }
+
+    function trim(str) {
+        return $.trim(str);
+    }
+
+    function urlEncode(s) {
+        return encodeURIComponent(String(s));
+    }
+
+    function urlDecode(s) {
+        return decodeURIComponent(s.replace(/\+/g, ' '));
+    }
+
+    function isValidParamValue(val) {
+        var t = typeof val;
+        // If the type of val is null, undefined, number, string, boolean, return TRUE.
+        return val == null || (t !== 'object' && t !== 'function');
+    }
+
+    function endsWith(str, suffix) {
+        var ind = str.length - suffix.length;
+        return ind >= 0 && str.indexOf(suffix, ind) == ind;
+    }
 });
